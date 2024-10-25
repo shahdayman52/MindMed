@@ -31,6 +31,15 @@ class _HomePageState extends State<HomePage> {
     },
   ];
 
+  void _navigateToDetails(String title) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailsPage(title: title),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,8 +57,7 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(top: 90.0, bottom: 20.0, left: 30),
               child: Text(
                 'Hello Friend',
-                style: TextStyle(
-                    fontSize: 24, color: Colors.white, fontFamily: 'Roboto'),
+                style: TextStyle(fontSize: 26, color: Colors.white),
               ),
             ),
             const Padding(
@@ -61,9 +69,6 @@ class _HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: PageView.builder(
-                onPageChanged: (int index) {
-                  setState(() {});
-                },
                 itemCount: cardsData.length,
                 itemBuilder: (context, index) {
                   return Center(
@@ -76,12 +81,16 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(
-                              height: 360,
-                              width: double.infinity,
-                              child: Image.asset(
-                                cardsData[index]['image']!,
-                                fit: BoxFit.cover,
+                            InkWell(
+                              onTap: () => _navigateToDetails(
+                                  cardsData[index]['title']!),
+                              child: SizedBox(
+                                height: 360,
+                                width: double.infinity,
+                                child: Image.asset(
+                                  cardsData[index]['image']!,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -101,7 +110,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white, // Set background color to white
+        backgroundColor: Colors.white,
         items: const [
           BottomNavigationBarItem(
             icon: Iconify(Mdi.home_outline, size: 30.0, color: Colors.black),
@@ -134,6 +143,27 @@ class _HomePageState extends State<HomePage> {
         },
         iconSize: 35.0,
         type: BottomNavigationBarType.fixed,
+      ),
+    );
+  }
+}
+
+class DetailsPage extends StatelessWidget {
+  final String title;
+
+  const DetailsPage({required this.title, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Text(
+          'Welcome to the $title page!',
+          style: const TextStyle(fontSize: 24),
+        ),
       ),
     );
   }
