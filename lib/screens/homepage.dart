@@ -1,50 +1,96 @@
 import 'package:flutter/material.dart';
-// import 'meditation_page.dart'; // Importing new pages
+import 'meditation_intro.dart';
 // import 'community_page.dart';
-// import 'journal_page.dart';
-// import 'chatbot_page.dart';
+import 'JournalEntryScreen.dart';
+import 'chatbot_intro.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // String nickname = '';
+
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Color(0xFF6C635D), size: 40),
-        title: Row(
-          children: [
-            SizedBox(width: 10),
-            Text(
-              "Hello, friend!",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontFamily: 'Gayathri',
-                fontSize: 24,
-                fontWeight: FontWeight.normal, // Non-italic
-                color: Colors.black54,
-              ),
-            ),
-          ],
-        ),
+        iconTheme: const IconThemeData(color: Color(0xFF6C635D), size: 40),
+        automaticallyImplyLeading: false,
+        title: Text("Hello User") ,
       ),
 
+
       endDrawer: Drawer(
-        child: ListView(
+        child: Column(
           children: [
-            DrawerHeader(
-              child: Text(
-                "Menu",
-                style: TextStyle(fontSize: 24),
+            Container(
+              color: const Color(0xFF6C635D),
+              padding: const EdgeInsets.all(16.0),
+              alignment: Alignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height:5 ), // Add space at the top
+                  Text(
+                    "user" ,// Display the nickname
+                    style: const TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                  const SizedBox(height: 50),
+                  Container(
+                    height: 1,
+                    color: Colors.white,
+                  ),
+                ],
               ),
             ),
-            ListTile(
-              title: Text("Option 1"),
-              onTap: () {},
-            ),
-            ListTile(
-              title: Text("Option 2"),
-              onTap: () {},
+            Expanded(
+              child: Container(
+                color: Colors.white, // Set background color to white
+                child: ListView(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.home),
+                      title: const Text("Home"),
+                      onTap: () {},
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.chat),
+                      title: const Text("Chatbot"),
+                      onTap: () {},
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.self_improvement),
+                      title: const Text("Meditation"),
+                      onTap: () {},
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.book),
+                      title: const Text("Journal"),
+                      onTap: () {},
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.group),
+                      title: const Text("Community"),
+                      onTap: () {},
+                    ),
+                    const Spacer(), // Pushes the settings tile to the bottom
+                    ListTile(
+                      leading: const Icon(Icons.settings),
+                      title: const Text("Settings"),
+                      onTap: () {},
+                      tileColor:
+                          Colors.white, // Set background of settings to white
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -55,9 +101,18 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(10),
+            const SizedBox(height: 0),
+            // Text(
+            //   "Hello, User!",
+            //   style: const TextStyle(
+            //     fontFamily: 'Gayathri',
+            //     fontSize: 24,
+            //     fontWeight: FontWeight.normal, // Non-italic
+            //     color: Colors.black54,
+            //   ),
+            // ),
+            const Padding(
+              padding: EdgeInsets.all(10),
               child: Text(
                 "Keep\nYour Mind\nClear",
                 style: TextStyle(
@@ -69,12 +124,11 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
-                // Navigate to mood logging page
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                       content: Text(
                     "Log Your Mood Today clicked!",
                     style: TextStyle(
@@ -85,9 +139,9 @@ class HomePage extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  SizedBox(width: 10),
-                  Text(
-                    "Log Your Mood Today !",
+                  const SizedBox(width: 10),
+                  const Text(
+                    "Log Your Mood Today!",
                     style: TextStyle(
                       fontFamily: 'Gayathri',
                       fontSize: 26,
@@ -103,7 +157,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -114,7 +168,7 @@ class HomePage extends StatelessWidget {
                     context,
                     "Meditation",
                     "assets/images/meditationCard1.png",
-                    HomePage(),
+                    MeditationPage(),
                   ),
                   _buildCard(
                     context,
@@ -126,13 +180,13 @@ class HomePage extends StatelessWidget {
                     context,
                     "Journal",
                     "assets/images/journalCard3.png",
-                    HomePage(),
+                    JournalEntryScreen(onSave: (String title, String content) {  },),
                   ),
                   _buildCard(
                     context,
                     "Chatbot",
                     "assets/images/chatbotCard4.png",
-                    HomePage(),
+                    ChatbotIntro(),
                   ),
                 ],
               ),
@@ -147,7 +201,6 @@ class HomePage extends StatelessWidget {
       BuildContext context, String title, String imagePath, Widget nextPage) {
     return GestureDetector(
       onTap: () {
-        // Navigate to the next page
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => nextPage),
