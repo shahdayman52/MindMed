@@ -1,6 +1,13 @@
+# import ssl
+# import certifi
+# ssl._create_default_https_context = ssl.create_default_context
+# # ssl._create_default_https_context = ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
 import ssl
 import certifi
-ssl._create_default_https_context = ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
+
+# ✅ Correct way to safely use certifi + HTTPS context
+ssl._create_default_https_context = ssl.create_default_context
+ssl.create_default_context(cafile=certifi.where())
 
 import pandas as pd
 import numpy as np
@@ -27,9 +34,10 @@ import joblib
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
+nltk.download('punkt_tab')  # <-- NEW
 
 # Read the dataset
-df = pd.read_csv('/Users/shahdayman/Documents/Projects/Flutter Projects/mindmed/train.csv', encoding='ISO-8859-1')
+df = pd.read_csv('/Users/shahdayman/Documents/Projects/Flutter Projects/MindMed-Front/MindMed/train.csv', encoding='ISO-8859-1')
 
 # Clean the dataset by handling missing values (filling NaN with 'missing text')
 df['text'] = df['text'].fillna('missing text')
@@ -57,8 +65,10 @@ df['tokens'] = df['text'].apply(tokenize_text)
 def normalize_text(text):
     if isinstance(text, str):
         text = text.lower()
-        text = re.sub(r'[^\w\s]', '', text)
-        text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r'https?://\S+|www\.\S+', '', text)
+        text = re.sub(r'\w*\d\w*', '', text)
+        # text = re.sub(r'[^\w\s]', '', text)
+        # text = re.sub(r'\s+', ' ', text).strip()
     else:
         text = str(text)
     return text
@@ -170,3 +180,4 @@ print(classification_report(y_test, y_pred))
 # Save the model and vectorizer
 joblib.dump(lr, 'logistic_regression_model.pkl')
 joblib.dump(vectorizer, 'vectorizer.pkl')
+print("✅ Model and vectorizer saved successfully.")

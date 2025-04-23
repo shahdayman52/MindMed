@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
+import '../services/auth_service.dart';
 
 class StressQuestionPage extends StatefulWidget {
-  const StressQuestionPage({super.key});
+  final List<String> answers;
+
+  const StressQuestionPage({required this.answers, super.key});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -18,44 +21,60 @@ class _StressQuestionPageState extends State<StressQuestionPage> {
     });
   }
 
-  void _submit() {
-    // Navigate directly to HomePage when 'Continue' is pressed
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const HomePage(),
-      ),
-    );
+  void _submit() async {
+    if (_selectedStressLevel == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select a stress level before continuing."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await AuthService.submitQuestionnaire(
+          widget.answers, _selectedStressLevel);
+
+      // ✅ Navigate to HomePage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to submit: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-              backgroundColor: Colors.white,
+            backgroundColor: Colors.white,
 
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              'MindMed',
-              style: TextStyle(
-                fontFamily: 'Onest',
-                fontSize: 20,
-                fontWeight: FontWeight.normal,
-                color: Color(0xFF6C635D),
-              ),
-            ),
-          ],
-        ),
-        automaticallyImplyLeading: false, // Remove the back arrow
-      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  'MindMed',
+                  style: TextStyle(
+                    fontFamily: 'Onest',
+                    fontSize: 20,
+                    fontWeight: FontWeight.normal,
+                    color: Color(0xFF6C635D),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 60.0),
             const Text(
               'On a scale from 1 to 10, how stressed do you feel today?',

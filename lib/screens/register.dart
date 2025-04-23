@@ -35,6 +35,11 @@ class _RegistrationPageState extends State<Register> {
             backgroundColor: Colors.green,
           ),
         );
+        await Future.delayed(const Duration(milliseconds: 500));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
         //Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         //context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'VRSessionPage.dart';
+import 'navbar.dart';
+import 'meditation_player.dart';
 
 class MeditationCategoryPage extends StatelessWidget {
   const MeditationCategoryPage({super.key});
@@ -7,92 +8,99 @@ class MeditationCategoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFFFF),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+      backgroundColor: Colors.white,
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 0,
+        onTap: (index) {
+          // Handle navigation if needed
+        },
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Text(
-              'Meditation',
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 30),
+            const Text(
+              'Find your calm.',
               style: TextStyle(
-                color: Color(0xFF7D624F),
+                color: Color(0xFF4B3621),
                 fontFamily: 'Gayathri',
                 fontWeight: FontWeight.bold,
-                fontSize: 30,
+                fontSize: 40,
               ),
             ),
-          ),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              children: [
-                _buildCategoryTile(
-                    context, 'Wind', 'assets/images/beigecard.png'),
-                _buildCategoryTile(
-                    context, 'Rain', 'assets/images/browncard.png'),
-                _buildCategoryTile(
-                    context, 'ASMR', 'assets/images/pinkcard.png'),
-                _buildCategoryTile(
-                    context, 'Grass', 'assets/images/orangecard.png'),
-                _buildCategoryTile(
-                    context, 'River', 'assets/images/beigecard.png'),
-                _buildCategoryTile(
-                    context, 'Waves', 'assets/images/browncard.png'),
-              ],
+            const SizedBox(height: 20),
+            const Text(
+              'Choose a sound to begin',
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 20,
+                fontFamily: 'Gayathri',
+              ),
             ),
-          ),
-        ],
+          
+            SizedBox(
+              child: Center(
+                child: SizedBox(
+                  width: 380,
+                  child: GridView.count(
+                    shrinkWrap: true,
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.8,
+                    children: [
+                      _buildCategoryTile(
+                        context,
+                        'assets/images/wind.png',
+                        'https://youtu.be/e_a3j_0nflI',
+                      ),
+                      _buildCategoryTile(
+                        context,
+                        'assets/images/rain.png',
+                        'https://youtu.be/1ZYbU82GVz4',
+                      ),
+                      _buildCategoryTile(
+                        context,
+                        'assets/images/river.png',
+                        'https://youtu.be/4Rj8E3ZxD4o',
+                      ),
+                      _buildCategoryTile(
+                        context,
+                        'assets/images/waves.png',
+                        'https://youtu.be/5a6o0gD9E8M',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildCategoryTile(
-      BuildContext context, String title, String imagePath) {
+      BuildContext context, String imagePath, String videoUrl) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => VRSessionPage(category: title),
+            builder: (context) => MeditationVideoPage(
+              videoUrl: videoUrl,
+            ),
           ),
         );
       },
-      child: Card(
-        margin: const EdgeInsets.all(10),
-        child: Container(
-          constraints: const BoxConstraints(
-            maxHeight: 300,
-            minHeight: 250,
-            minWidth: 150,
-            maxWidth: 200,
-          ),
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Image.asset(imagePath, fit: BoxFit.cover),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: Color(0xFF7D624F),
-                    fontSize: 20,
-                    fontFamily: 'Gayathri',
-                  ),
-                ),
-              ),
-            ],
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          image: DecorationImage(
+            image: AssetImage(imagePath),
+            fit: BoxFit.cover,
           ),
         ),
       ),

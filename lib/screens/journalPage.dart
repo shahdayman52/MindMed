@@ -1,10 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-import 'JournalEntryScreen.dart';
 import 'homepage.dart';
+import 'navbar.dart';
+import '../services/auth_service.dart';
+import 'JournalEntryScreen.dart';
 
 class JournalPage extends StatefulWidget {
   const JournalPage({super.key});
@@ -16,12 +16,34 @@ class JournalPage extends StatefulWidget {
 class _JournalPageState extends State<JournalPage> {
   List<Map<String, dynamic>> journalEntries = [];
 
-  // This function predicts the mental health status using the API
+  @override
+  void initState() {
+    super.initState();
+    fetchJournalEntries();
+  }
+
+  Future<void> fetchJournalEntries() async {
+    try {
+      final entries = await AuthService.getMyJournals();
+      setState(() {
+        journalEntries = entries.map((entry) {
+          return {
+            '_id': entry['_id'],
+            'title': entry['title'],
+            'content': entry['content'],
+            'date': entry['date'].toString().split('T')[0],
+            'status': entry['sentiment'],
+          };
+        }).toList();
+      });
+    } catch (e) {
+      print("❌ Failed to load journals: $e");
+    }
+  }
+
   Future<String> _predictMentalHealthStatus(String content) async {
-    const String apiUrl =
-        'http://127.0.0.1:5001/predict'; // Localhost API endpoint
-    const String apiKey =
-        '2qPHzBAML1ICY5TpNDScAt3Rz2o_6Mj51tGzXY7XhPfGfiQTi'; // Replace with your API Key
+    final String apiUrl = 'http://localhost:5002/predict';
+    const String apiKey = '2qPHzBAML1ICY5TpNDScAt3Rz2o_6Mj51tGzXY7XhPfGfiQTi';
 
     try {
       final response = await http.post(
@@ -30,52 +52,61 @@ class _JournalPageState extends State<JournalPage> {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $apiKey',
         },
-        body: json.encode({'text': content}),
+        body: jsonEncode({'text': content}),
       );
 
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        return data['prediction'] ?? 'Unknown';
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['prediction'] != null) {
+        return data['prediction'];
       } else {
-        throw Exception(
-            'Failed to predict mental health status. Status code: ${response.statusCode}');
+        print("❌ Prediction Error: ${data['error'] ?? 'Unknown error'}");
+        return 'Error';
       }
     } catch (e) {
-      print('Error during API call: $e');
+      print('❌ API Exception: $e');
       return 'Error';
     }
   }
 
-  // Adds a new journal entry with prediction
   void _addJournal(String title, String content) async {
+    print("📤 Predicting sentiment...");
     String predictedStatus = await _predictMentalHealthStatus(content);
-    String date = DateTime.now().toLocal().toString().split(' ')[0];
-    setState(() {
-      journalEntries.add({
-        'title': title,
-        'content': content,
-        'date': date,
-        'status': predictedStatus,
+    print("🔮 Prediction result: $predictedStatus");
+
+    if (predictedStatus == 'Error') {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("❌ Sentiment prediction failed. Please try again."),
+      ));
+      return;
+    }
+
+    final response =
+        await AuthService.saveJournal(title, content, predictedStatus);
+
+    print("📥 Save response: ${response.statusCode} - ${response.body}");
+
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        journalEntries.add({
+          '_id': responseData['_id'],
+          'title': title,
+          'content': content,
+          'date': responseData['date'].toString().split('T')[0],
+          'status': predictedStatus,
+        });
       });
-    });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("❌ Failed to save journal: ${response.body}"),
+      ));
+    }
   }
 
-  // Edits an existing journal entry with prediction
-  void _editJournal(int index, String title, String content) async {
-    String predictedStatus = await _predictMentalHealthStatus(content);
-    String date = DateTime.now().toLocal().toString().split(' ')[0];
-    setState(() {
-      journalEntries[index] = {
-        'title': title,
-        'content': content,
-        'date': date,
-        'status': predictedStatus,
-      };
-    });
-  }
-
-  // Deletes a journal entry
-  void _deleteJournal(int index) {
+  void _deleteJournal(int index) async {
+    final id = journalEntries[index]['_id'];
+    await AuthService.deleteJournal(id);
     setState(() {
       journalEntries.removeAt(index);
     });
@@ -84,20 +115,22 @@ class _JournalPageState extends State<JournalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 4,
+        onTap: (index) {
+          // Handle bottom nav tap if needed
+        },
+      ),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFFFFFF),
         elevation: 0,
-        leading: null, // Disable the default leading widget
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.black54,
-                size: 30,
-              ),
+              icon: const Icon(Icons.arrow_back_ios_new,
+                  color: Colors.black54, size: 30),
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const HomePage()),
                 );
@@ -125,10 +158,7 @@ class _JournalPageState extends State<JournalPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 120),
-                  Image.asset(
-                    'assets/images/journal.png',
-                    width: 400,
-                  ),
+                  Image.asset('assets/images/journal.png', width: 400),
                   const SizedBox(height: 50),
                   const Text(
                     "Start Journaling",
@@ -161,10 +191,12 @@ class _JournalPageState extends State<JournalPage> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(journalEntries[index]['content'] ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14)),
+                        Text(
+                          journalEntries[index]['content'] ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
+                        ),
                         const SizedBox(height: 5),
                         Text(
                           journalEntries[index]['date'] ?? '',
@@ -185,33 +217,11 @@ class _JournalPageState extends State<JournalPage> {
                     trailing: PopupMenuButton(
                       icon: Icon(Icons.more_vert, color: Colors.brown[800]),
                       onSelected: (value) {
-                        if (value == 'edit') {
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(
-                                  builder: (context) => JournalEntryScreen(
-                                        onSave: (title, content) =>
-                                            _editJournal(index, title, content),
-                                        initialTitle: journalEntries[index]
-                                            ['title'],
-                                        initialContent: journalEntries[index]
-                                            ['content'],
-                                      )))
-                              .then((_) => setState(() {}));
-                        } else if (value == 'delete') {
+                        if (value == 'delete') {
                           _deleteJournal(index);
                         }
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, color: Colors.brown),
-                              SizedBox(width: 10),
-                              Text("Edit"),
-                            ],
-                          ),
-                        ),
                         const PopupMenuItem(
                           value: 'delete',
                           child: Row(
@@ -235,18 +245,14 @@ class _JournalPageState extends State<JournalPage> {
           onPressed: () {
             Navigator.of(context)
                 .push(MaterialPageRoute(
-                    builder: (context) => JournalEntryScreen(
-                          onSave: (title, content) =>
-                              _addJournal(title, content),
-                        )))
-                .then((_) => setState(() {}));
+                  builder: (context) => JournalEntryScreen(
+                    onSave: (title, content) => _addJournal(title, content),
+                  ),
+                ))
+                .then((_) => fetchJournalEntries());
           },
           backgroundColor: Colors.brown,
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
-            size: 40,
-          ),
+          child: const Icon(Icons.add, color: Colors.white, size: 40),
         ),
       ),
     );

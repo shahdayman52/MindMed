@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'meditation_player.dart';
 
 class VRSessionPage extends StatelessWidget {
   final String category;
@@ -66,12 +65,12 @@ class VRSessionPage extends StatelessWidget {
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MeditationPlayerPage(),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => MeditationPlayerPage(),
+               // ),
+             // );
             },
             child: const Text(
               "Don’t have a VR glass? get an alternative choice",

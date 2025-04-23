@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'questionaire.dart'; 
-import 'stress_question.dart';
+import 'stress_question.dart'; // Import the stress question page
+
 class QuestionnairePage extends StatefulWidget {
   const QuestionnairePage({super.key});
 
@@ -41,8 +41,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     },
   ];
 
+  List<String> userAnswers = [];
+
   void _nextQuestion(String selectedAnswer) {
-    // Move to the next question or navigate to the StressQuestionPage after the last question
+    userAnswers.add(selectedAnswer);
     if (_currentQuestionIndex < _questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
@@ -51,7 +53,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const StressQuestionPage(),
+          builder: (context) => StressQuestionPage(answers: userAnswers),
         ),
       );
     }
@@ -61,10 +63,14 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-              backgroundColor: Colors.white,
 
-        title: Row(
+   
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(),
@@ -79,12 +85,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             ),
           ],
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
             const SizedBox(height: 60.0),
             Text(
               _questions[_currentQuestionIndex]['question'],
