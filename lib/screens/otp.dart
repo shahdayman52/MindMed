@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:mindmed/config.dart';
 import 'resetPassword.dart';
 
 class OTPVerificationPage extends StatefulWidget {
@@ -25,7 +25,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     });
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.18:5002/api/auth/verify-otp'),
+      Uri.parse('http://$BaseUrl1/api/auth/verify-otp'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': widget.email, 'otp': otpController.text}),
     );

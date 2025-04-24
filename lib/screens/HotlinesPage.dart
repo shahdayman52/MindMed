@@ -93,10 +93,10 @@ void _launchPhone(String number) async {
                     /// 🌐 Website Support Card
                     _buildWebsiteCard(
                       emoji: "💻",
-                      title: "National Mental Health Platform",
+                     title: "WHO Mental Health Hub",
                       description:
-                          "Online counseling and psychoeducational support provided by the Ministry of Health.",
-                      url: "https://mohp.gov.eg",
+                          "Trusted tools and advice for managing anxiety, depression, and emotional health.",
+                      url: "https://www.who.int/health-topics/mental-health",
                     ),
             
                     const SizedBox(height: 24),
@@ -210,7 +210,7 @@ void _launchPhone(String number) async {
               const Icon(Icons.language, color: Colors.blue, size: 18),
               const SizedBox(width: 6),
               Expanded(
-                child: Text("Website: mohp.gov.eg",
+                child: Text("Website: who.int",
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
               ),
               IconButton(

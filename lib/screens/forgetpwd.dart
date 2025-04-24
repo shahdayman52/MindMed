@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:mindmed/config.dart';
 
 import 'otp.dart';
 // import 'otp_verification.dart'; // Make sure you created this screen
@@ -27,8 +28,8 @@ class _ForgetpwdState extends State<Forgetpwd> {
     }
 
     final response = await http.post(
-      // Uri.parse('http://localhost:5002/api/auth/send-otp'), SUMULATOR
-            Uri.parse('http://192.168.1.18:5002/api/auth/send-otp'),
+      Uri.parse('http://$BaseUrl1/api/auth/send-otp'), 
+            // Uri.parse('http://192.168.1.18:5002/api/auth/send-otp'),
 
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email}),

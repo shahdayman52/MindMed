@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mindmed/config.dart';
 
 class MoodDashboard extends StatefulWidget {
   const MoodDashboard({super.key});
@@ -29,8 +30,8 @@ class _MoodDashboardState extends State<MoodDashboard> {
   Future<void> fetchMoodStats() async {
     final formattedMonth = DateFormat('yyyy-MM').format(selectedMonth);
     final url =
-        // Uri.parse('http://localhost:5002/api/mood/stats?month=$formattedMonth');
-                Uri.parse('http://192.168.1.18:5002/api/mood/stats?month=$formattedMonth');
+        Uri.parse('http://$BaseUrl1/api/mood/stats?month=$formattedMonth');
+                // Uri.parse('http://192.168.1.18:5002/api/mood/stats?month=$formattedMonth');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -55,9 +56,9 @@ class _MoodDashboardState extends State<MoodDashboard> {
   Future<void> fetchWeeklyTrend() async {
     final formattedMonth = DateFormat('yyyy-MM').format(selectedMonth);
     final url = Uri.parse(
-             'http://192.168.1.18:5002/api/mood/weekly-stats?month=$formattedMonth');
+            //  'http://192.168.1.18:5002/api/mood/weekly-stats?month=$formattedMonth');
 
-        // 'http://localhost:5002/api/mood/weekly-stats?month=$formattedMonth');
+         'http://$BaseUrl1/api/mood/weekly-stats?month=$formattedMonth');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -120,8 +121,8 @@ class _MoodDashboardState extends State<MoodDashboard> {
   }
 
   Future<void> fetchMoodStreak() async {
-    final url = Uri.parse('http://192.168.1.18:5002/api/mood/streak');
-        // final url = Uri.parse('http://localhost:5002/api/mood/streak');
+    // final url = Uri.parse('http://192.168.1.18:5002/api/mood/streak');
+        final url = Uri.parse('http://$BaseUrl1/api/mood/streak');
 
 
     SharedPreferences prefs = await SharedPreferences.getInstance();

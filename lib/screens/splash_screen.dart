@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:mindmed/services/notification_service.dart';
 import 'intro.dart';
 
 
@@ -13,6 +14,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+showInstantNotification();
+      scheduleDailyNotifications();
+
+
     // Navigate to the registration page after 2 seconds
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.pushReplacement(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindmed/services/notification_service.dart';
 import 'chatbot_chat.dart';
 import 'community.dart';
 import 'moodflow.dart';
@@ -49,6 +50,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+
               /// Header Row with Hello + Logout Icon
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -112,7 +114,10 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 30),
-
+              ElevatedButton(
+                onPressed: showInstantNotification,
+                child: const Text("Send Test Notification"),
+              ),
               GestureDetector(
                 onTap: () {
                   Navigator.push(

@@ -1,22 +1,23 @@
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:mindmed/config.dart';
 
 class AuthService {
   //CHANGE IN FGT PWD,MOODLOG,MOOD DASHBOARD, OTP,reset pw
-  // static const String _baseUrl = 'http://localhost:5002/api/auth';
-  static const String _baseUrl =
-      'http://192.168.1.18:5002/api/auth'; // use your IP here
-  // static const String _postBase = 'http://localhost:5002/api/posts';
-  static const String _postBase =
-      'http://192.168.1.18:5002/api/posts'; // use your IP here
-  // static const String _journalBase = 'http://localhost:5002/api/journal';
-  static const String _journalBase =
-      'http://192.168.1.18:5002/api/journal'; // use your IP here
-  // static const String _questionnaireBase =
-  //     'http://localhost:5002/api/questionnaire';
+  static const String _baseUrl = 'http://$BaseUrl1/api/auth';
+  // static const String _baseUrl =
+  //     'http://192.168.1.18:5002/api/auth'; // use your IP here
+  static const String _postBase = 'http://$BaseUrl1/api/posts';
+  // static const String _postBase =
+  //     'http://192.168.1.18:5002/api/posts'; // use your IP here
+  static const String _journalBase = 'http://$BaseUrl1/api/journal';
+  // static const String _journalBase =
+  //     'http://192.168.1.18:5002/api/journal'; // use your IP here
   static const String _questionnaireBase =
-      'http://192.168.1.18:5002/api/questionnaire'; // use your IP here
+      'http://$BaseUrl1/api/questionnaire';
+  // static const String _questionnaireBase =
+  //     'http://192.168.1.18:5002/api/questionnaire'; // use your IP here
 
   // ✅ Register User
   static Future<http.Response> registerUser(
@@ -27,6 +28,8 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'name': name, 'email': email, 'password': password}),
     );
+
+    
     return response;
   }
 

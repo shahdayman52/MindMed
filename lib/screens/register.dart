@@ -46,14 +46,28 @@ class _RegistrationPageState extends State<Register> {
         //MaterialPageRoute(builder: (context) => ()),
         // );
       } else {
-        final errors = jsonDecode(response.body)['errors'];
-        // ignore: use_build_context_synchronously
+        final responseBody = jsonDecode(response.body);
+
+// Check if the response contains a single "message" (like "Email already in use.")
+        final errorMessage = responseBody['message'] ??
+            (responseBody['errors'] != null
+                ? responseBody['errors'].join('\n')
+                : 'Registration failed.');
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errors.join('\n')),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
           ),
         );
+        // final errors = jsonDecode(response.body)['errors'];
+        // // ignore: use_build_context_synchronously
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text(errors.join('\n')),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
       }
     }
   }

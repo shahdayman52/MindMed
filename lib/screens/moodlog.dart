@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mood_dashboard.dart';
+import 'package:mindmed/config.dart';
 
 
 class MoodLoggingPage extends StatefulWidget {
@@ -39,7 +40,7 @@ class _MoodLoggingPageState extends State<MoodLoggingPage> {
 
     final String baseUrl =
         // Platform.isAndroid ? 'http://10.0.2.2:5002' : 'http://localhost:5002';
-                Platform.isAndroid ? 'http://10.0.2.2:5002' : 'http://192.168.1.18:5002';
+                Platform.isAndroid ? 'http://10.0.2.2:5002' : 'http://$BaseUrl1';
 
     final Uri url = Uri.parse('$baseUrl/api/mood/log-mood');
 

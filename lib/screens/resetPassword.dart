@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:mindmed/config.dart';
 
 class PasswordResetScreen extends StatefulWidget {
   final String email;
@@ -26,7 +27,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
     final response = await http.post(
       // Uri.parse('http://localhost:5002/api/auth/reset-password'),
-            Uri.parse('http://192.168.1.18:5002/api/auth/reset-password'),
+            Uri.parse('http://$BaseUrl1/api/auth/reset-password'),
 
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({

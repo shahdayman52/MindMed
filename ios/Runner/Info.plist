@@ -3,6 +3,19 @@
 <plist version="1.0">
 <dict>
 
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone to let you talk to the chatbot.</string>
+
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We use speech recognition so the chatbot can understand what you say.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+  		<string>fetch</string>
+  		<string>remote-notification</string>
+	</array>
+	<key>NSUserNotificationAlertUsageDescription</key>
+	<string>This app uses notifications to remind you to check in and journal.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
  	 <string>tel</string>
