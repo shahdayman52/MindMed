@@ -37,7 +37,7 @@ void scheduleDailyNotifications() async {
     1, // ID
     '🧠 Mind Check-in',
     'How are you feeling today?',
-    _nextInstanceOfTime(10, 0),
+    _nextInstanceOfTime(12, 9), //12,20
     const NotificationDetails(
       android: AndroidNotificationDetails(
         'morning_notif',
@@ -82,7 +82,7 @@ tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
   var scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
 
   if (scheduled.isBefore(now)) {
-    scheduled = scheduled.add(const Duration(days: 1)); // Schedule for tomorrow
+    scheduled = scheduled.add(const Duration(days: 0)); // Schedule for tomorrow
   }
 
   return scheduled;

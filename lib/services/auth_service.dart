@@ -14,8 +14,7 @@ class AuthService {
   static const String _journalBase = 'http://$BaseUrl1/api/journal';
   // static const String _journalBase =
   //     'http://192.168.1.18:5002/api/journal'; // use your IP here
-  static const String _questionnaireBase =
-      'http://$BaseUrl1/api/questionnaire';
+  static const String _questionnaireBase = 'http://$BaseUrl1/api/questionnaire';
   // static const String _questionnaireBase =
   //     'http://192.168.1.18:5002/api/questionnaire'; // use your IP here
 
@@ -29,7 +28,6 @@ class AuthService {
       body: jsonEncode({'name': name, 'email': email, 'password': password}),
     );
 
-    
     return response;
   }
 
@@ -42,7 +40,7 @@ class AuthService {
       body: jsonEncode({'email': email, 'password': password}),
     );
 
-    if (response.statusCode == 200) {
+if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final token = data['token'];
       final username = data['user']['name'];
@@ -53,10 +51,11 @@ class AuthService {
       await prefs.setString('username', username);
       await prefs.setString('userId', userId);
 
-      return true; // ✅ indicate success
+      return true;
     } else {
-      print("Login failed: ${response.body}");
-      return false; // ❌ login failed
+      print(
+          "Login failed (status: ${response.statusCode}): ${response.body}"); // 👈 print it
+      return false;
     }
   }
 
@@ -141,7 +140,7 @@ class AuthService {
   static Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
-     await prefs.clear(); // clears all keys including 'username'
+    await prefs.clear(); // clears all keys including 'username'
 
     print("Token after logout: ${prefs.getString('token')}");
     print("Username after logout: ${prefs.getString('username')}");
@@ -212,6 +211,21 @@ class AuthService {
       headers: {'Authorization': 'Bearer $token'},
     );
   }
+  // ✅ Edit Comment
+  static Future<http.Response> editComment(
+      String commentId, String newText) async {
+    final token = await getToken();
+    final url = Uri.parse('$_postBase/editComment/$commentId');
+
+    return await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'text': newText}),
+    );
+  }
 
   // ✅ Delete Comment
   static Future<http.Response> deleteComment(String commentId) async {
@@ -261,7 +275,8 @@ class AuthService {
   static Future<http.Response> saveJournal(
       String title, String content, String sentiment) async {
     final token = await getToken();
-    final url = Uri.parse('$_journalBase/writeJournal');
+    final url = Uri.parse(
+        '$_journalBase/writeJournal'); // Using BaseUrl1 (backend)
 
     final response = await http.post(
       url,
@@ -277,6 +292,41 @@ class AuthService {
     );
 
     return response;
+  }
+  // static Future<http.Response> saveJournal(
+  //     String title, String content, String sentiment) async {
+  //   final token = await getToken();
+  //   final url = Uri.parse('$_journalBase/writeJournal');
+
+  //   final response = await http.post(
+  //     url,
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': 'Bearer $token',
+  //     },
+  //     body: jsonEncode({
+  //       'title': title,
+  //       'content': content,
+  //       'sentiment': sentiment,
+  //     }),
+  //   );
+
+  //   return response;
+  // }
+
+static Future<http.Response> updateJournal(
+      String id, String title, String content) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final url = Uri.parse('$_journalBase/$id');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = jsonEncode({'title': title, 'content': content});
+
+    return await http.put(url, headers: headers, body: body);
   }
 
   // ✅ Get all journals

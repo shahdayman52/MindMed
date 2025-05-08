@@ -5,7 +5,7 @@ import 'homepage.dart';
 import 'meditation_category.dart';
 import 'community.dart';
 import 'chatbot_chat.dart';
-import 'JournalEntryScreen.dart';
+import 'journalPage.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -33,7 +33,7 @@ class BottomNavBar extends StatelessWidget {
         page = ChatScreen();
         break;
       case 4:
-        page = JournalEntryScreen(onSave: (title, content) {});
+        page = JournalPage();
         break;
       default:
         page = const HomePage();

@@ -9,7 +9,6 @@ import 'package:mindmed/screens/splash_screen.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
@@ -78,6 +77,22 @@ class MyApp extends StatelessWidget {
 // import 'package:timezone/data/latest.dart' as tz;
 // import 'package:timezone/timezone.dart' as tz;
 
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home:SplashScreen(),
+
+//     );
+//   }
+// }
+// import 'package:flutter/material.dart';
+// import 'package:mindmed/screens/splash_screen.dart';
 // void main() {
 //   runApp(MyApp());
 // }
