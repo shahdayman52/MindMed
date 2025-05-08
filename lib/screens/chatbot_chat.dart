@@ -1,8 +1,5 @@
 import 'dart:io';
-import 'package:mindmed/screens/homepage.dart';
 
-import 'navbar.dart';
-import 'homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -29,7 +26,8 @@ class _ChatScreenState extends State<ChatScreen>
   final Map<int, String> _feedback = {};
 
   static const apiKey = "AIzaSyA0p26b2muJvm3mEkY9wPra6JvHZbzw-cY";
-  final model = GenerativeModel(model: 'models/gemini-1.5-pro', apiKey: apiKey);
+  final model =
+      GenerativeModel(model: 'models/gemini-2.0-flash', apiKey: apiKey);
 
   final List<Message> _messages = [];
 
@@ -103,14 +101,19 @@ class _ChatScreenState extends State<ChatScreen>
 
     setState(() {
       _isLoading = true;
-      _messages
-          .add(Message(isUser: true, message: message, date: DateTime.now()));
+      _messages.add(Message(
+        isUser: true,
+        message: message,
+        date: DateTime.now(),
+      ));
     });
     _scrollToBottom();
 
     try {
+      print("Sending message to Gemini: $message");
       final content = [Content.text(message)];
       final response = await model.generateContent(content);
+      print("Received response: ${response.text}");
 
       setState(() {
         _isLoading = false;
@@ -121,14 +124,19 @@ class _ChatScreenState extends State<ChatScreen>
         ));
       });
       _scrollToBottom();
-    } catch (e) {
+    } catch (e, stack) {
+      print("Error during generateContent(): $e");
+      print("Stack trace: $stack");
+
       setState(() => _isLoading = false);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error: Unable to generate response")),
+        SnackBar(content: Text("Error: $e")),
       );
+
       _messages.add(Message(
         isUser: false,
-        message: "Error: Unable to generate response.",
+        message: "Error: ${e.toString()}",
         date: DateTime.now(),
       ));
       _scrollToBottom();
@@ -144,24 +152,15 @@ class _ChatScreenState extends State<ChatScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 3,
-        onTap: (index) {
-          // Handle bottom nav tap if needed
-        },
-      ),
       backgroundColor: const Color(0xFFFDFBF9),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFDFBF9),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.brown),
-       onPressed: (){ Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(builder: (context) => const HomePage()),
-);}
+          onPressed: () => Navigator.pop(context),
         ),
-       centerTitle: true,
+        centerTitle: true,
         title: const Text(
           'Calm Talk',
           style: TextStyle(
