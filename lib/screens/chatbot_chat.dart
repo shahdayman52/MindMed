@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -29,14 +30,23 @@ class _ChatScreenState extends State<ChatScreen>
   final model =
       GenerativeModel(model: 'models/gemini-2.0-flash', apiKey: apiKey);
 
+  late Box _messageBox;
   final List<Message> _messages = [];
 
   late AnimationController _typingController;
   late Animation<double> _dotAnimation;
 
+  final List<String> _suggestions = [
+    "I feel anxious",
+    "Help me sleep",
+    "Give me a calming tip",
+    "I’m feeling overwhelmed"
+  ];
+
   @override
   void initState() {
     super.initState();
+    _initHive();
     _typingController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -44,6 +54,22 @@ class _ChatScreenState extends State<ChatScreen>
     _dotAnimation = Tween<double>(begin: 0, end: 3).animate(
       CurvedAnimation(parent: _typingController, curve: Curves.easeInOut),
     );
+  }
+
+  Future<void> _initHive() async {
+    final appDocDir = await getApplicationDocumentsDirectory();
+    Hive.init(appDocDir.path);
+    if (!Hive.isBoxOpen('messages')) {
+      _messageBox = await Hive.openBox('messages');
+    } else {
+      _messageBox = Hive.box('messages');
+    }
+
+    setState(() {
+      _messages.addAll(_messageBox.values
+          .map((e) => Message.fromMap(Map<String, dynamic>.from(e)))
+          .toList());
+    });
   }
 
   @override
@@ -83,7 +109,8 @@ class _ChatScreenState extends State<ChatScreen>
 
   Future<void> _exportChat() async {
     final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/neura_chat.txt';
+    final path =
+        '${directory.path}/mindmed_chat_${DateTime.now().millisecondsSinceEpoch}.txt';
     final file = File(path);
 
     final content = _messages
@@ -92,7 +119,7 @@ class _ChatScreenState extends State<ChatScreen>
         .join('\n\n');
 
     await file.writeAsString(content);
-    Share.shareXFiles([XFile(path)], text: 'Neura Chat Export');
+    Share.shareXFiles([XFile(path)], text: 'MindMed Chat Export');
   }
 
   Future<void> sendMessage() async {
@@ -101,45 +128,36 @@ class _ChatScreenState extends State<ChatScreen>
 
     setState(() {
       _isLoading = true;
-      _messages.add(Message(
+      final newMessage = Message(
         isUser: true,
         message: message,
         date: DateTime.now(),
-      ));
+      );
+      _messages.add(newMessage);
+      _messageBox.add(newMessage.toMap());
     });
     _scrollToBottom();
 
     try {
-      print("Sending message to Gemini: $message");
       final content = [Content.text(message)];
       final response = await model.generateContent(content);
-      print("Received response: ${response.text}");
 
       setState(() {
         _isLoading = false;
-        _messages.add(Message(
+        final aiMessage = Message(
           isUser: false,
           message: response.text ?? "No response received",
           date: DateTime.now(),
-        ));
+        );
+        _messages.add(aiMessage);
+        _messageBox.add(aiMessage.toMap());
       });
       _scrollToBottom();
-    } catch (e, stack) {
-      print("Error during generateContent(): $e");
-      print("Stack trace: $stack");
-
+    } catch (e) {
       setState(() => _isLoading = false);
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),
       );
-
-      _messages.add(Message(
-        isUser: false,
-        message: "Error: ${e.toString()}",
-        date: DateTime.now(),
-      ));
-      _scrollToBottom();
     }
   }
 
@@ -173,7 +191,12 @@ class _ChatScreenState extends State<ChatScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever, color: Colors.brown),
-            onPressed: () => setState(() => _messages.clear()),
+            onPressed: () {
+              setState(() {
+                _messages.clear();
+                _messageBox.clear();
+              });
+            },
           ),
           IconButton(
             icon: const Icon(Icons.share_outlined, color: Colors.brown),
@@ -252,32 +275,6 @@ class _ChatScreenState extends State<ChatScreen>
                             Text(formattedDate,
                                 style: const TextStyle(
                                     fontSize: 12, color: Colors.grey)),
-                            if (!msg.isUser)
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.thumb_up_alt_outlined,
-                                      size: 18,
-                                      color: _feedback[index] == 'up'
-                                          ? Colors.green
-                                          : Colors.black45,
-                                    ),
-                                    onPressed: () => _rateMessage(index, 'up'),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.thumb_down_alt_outlined,
-                                      size: 18,
-                                      color: _feedback[index] == 'down'
-                                          ? Colors.red
-                                          : Colors.black45,
-                                    ),
-                                    onPressed: () =>
-                                        _rateMessage(index, 'down'),
-                                  ),
-                                ],
-                              ),
                           ],
                         ),
                       ),
@@ -287,6 +284,32 @@ class _ChatScreenState extends State<ChatScreen>
               },
             ),
           ),
+          if (_suggestions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: SizedBox(
+                height: 40,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _suggestions.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: ActionChip(
+                        label: Text(_suggestions[index]),
+                        backgroundColor: const Color(0xFFF1ECE6),
+                        labelStyle: const TextStyle(color: Colors.black87),
+                        onPressed: () {
+                          _userInput.text = _suggestions[index];
+                          sendMessage();
+                          _userInput.clear();
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Row(
@@ -341,7 +364,24 @@ class Message {
   final DateTime date;
 
   Message({required this.isUser, required this.message, required this.date});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'isUser': isUser,
+      'message': message,
+      'date': date.toIso8601String(),
+    };
+  }
+
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      isUser: map['isUser'],
+      message: map['message'],
+      date: DateTime.parse(map['date']),
+    );
+  }
 }
+
 // import 'dart:io';
 
 // import 'package:flutter/material.dart';
